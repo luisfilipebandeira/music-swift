@@ -166,15 +166,29 @@ struct Home: View {
     
     // func to get safe area top
     func getSafeAreaTop() -> CGFloat {
-        let keyWindow = UIApplication.shared.connectedScenes
-            .filter({ $0.activationState == .foregroundActive })
-            .map({ $0 as? UIWindowScene })
-            .compactMap({ $0 })
-            .first?.windows
-            .filter({ $0.isKeyWindow }).first
+        guard let keyWindow = UIApplication.shared.connectedScenes
+                .filter({ $0.activationState == .foregroundActive })
+                .map({ $0 as? UIWindowScene })
+                .compactMap({ $0 })
+                .first?.windows
+                .filter({ $0.isKeyWindow }).first else {
+            // Handle the case when the key window is not available
+            return 0
+        }
         
-        return (keyWindow?.safeAreaInsets.top)!
+        if #available(iOS 11.0, *) {
+            if let safeAreaTop = keyWindow.safeAreaInsets.top {
+                return safeAreaTop
+            } else {
+                // Handle the case when safeAreaInsets.top is not available
+                return 0
+            }
+        } else {
+            // For versions prior to iOS 11, safe area insets are not available
+            return 0
+        }
     }
+
 }
 
 #Preview {
